@@ -14,7 +14,9 @@ Puppet::Type.type(:partition).provide(:parted) do
     parted = Utils::Parted.new
     parted.version_check
     resources.each do |name, value|
-      parted.show(value['device'] )
+      device = value['name']
+      device = File.realpath(device, '/dev') if File.symlink?(device)
+      parted.show(device )
       parted.partitions.each do | partition |
         provider = map_raw_to_resource(partition)
         resources[name].provider = provider if provider.name == name
