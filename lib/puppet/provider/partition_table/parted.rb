@@ -13,7 +13,9 @@ Puppet::Type.type(:partition_table).provide(:parted) do
   def self.prefetch(resources)
     parted = Utils::Parted.new
     resources.each do |name, value|
-      parted.show(value['name'] )
+      device = value['name']
+      device = File.realpath(device, '/dev') if File.symlink?(device)
+      parted.show(device )
       parted.tables.each do | table |
         provider = map_raw_to_resource(table)
         resources[name].provider = provider if provider.name == name
